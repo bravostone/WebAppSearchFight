@@ -34,27 +34,44 @@ namespace WebAppSearchFight.Controllers
         /// <param name="word">palabra a buscar</param>
         /// <returns>Total de coincidencias y ganadores</returns>
         [HttpPost]
-        public string Search(string word)
+        public string Search(string chain)
         {
             SearchEngine searchEngine = new SearchEngine();
+            
+            string pintar  = string.Empty;
+            string pintarA = string.Empty;
+            string pintarB = string.Empty;
 
-            List<GenericEntity> listSearchEngine = new List<GenericEntity>();
-            listSearchEngine.Add(addList("Google", word));
-            listSearchEngine.Add(addList("Bing", word));
+            string[] words = chain.Split(' ');
 
-            string pintar = string.Empty;
-
-            pintar = string.Format("{0} :", word);
-
-            foreach (var item in listSearchEngine)
+            foreach (var word in words)
             {
-                searchEngine.SearchCall(item);
-                pintar = pintar + string.Format("{0}: {1} ", item.name, item.resultado);
+                List<GenericEntity> listSearchEngine = new List<GenericEntity>();
+                listSearchEngine.Add(addList("Google", word));
+                listSearchEngine.Add(addList("Bing", word));
+
+                pintar = string.Format("{0}: ", word);
+
+                foreach (var item in listSearchEngine)
+                {
+                    searchEngine.SearchCall(item);
+                    pintar = pintar + string.Format("{0}: {1} ", item.name, item.resultado);
+                }
+
+                pintarA = pintarA + pintar;
+                pintarA = pintarA + "<br />";
+
+                pintar = string.Empty;
+
+                pintarB =   pintarB +  string.Format("{0}", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).name) + " winner: " +
+                                       string.Format("{0} ", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).q);
+                pintarB =   pintarB + "<br />";
             }
 
-            pintar = pintar + "<br />";
-            pintar = pintar + string.Format("{0}", listSearchEngine.First( x=>x.resultado == listSearchEngine.Max(y=>y.resultado)).name) + " winner: " + 
-                              string.Format("{0}", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).q);
+            pintar = pintarA + pintarB;
+
+            //pintar = pintar + string.Format("{0}", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).name) + " winner: " +
+            //                  string.Format("{0}", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).q);
 
             return pintar;
         }
