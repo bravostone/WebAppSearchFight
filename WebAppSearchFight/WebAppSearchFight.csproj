@@ -52,6 +52,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -173,6 +174,16 @@
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Entity\SearchFight.Entity.csproj">
+      <Project>{5AC9F776-5701-4037-B842-767FB56CF12F}</Project>
+      <Name>SearchFight.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SearchFight.Logic\SearchFight.Logic.csproj">
+      <Project>{9C4E1D66-303B-4253-A964-CA7C01214C50}</Project>
+      <Name>SearchFight.Logic</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
