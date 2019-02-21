@@ -34,46 +34,12 @@ namespace WebAppSearchFight.Controllers
         /// <param name="word">palabra a buscar</param>
         /// <returns>Total de coincidencias y ganadores</returns>
         [HttpPost]
-        public string Search(string chain)
+        public string Search(string text)
         {
-            SearchEngine searchEngine = new SearchEngine();
-            
-            string pintar  = string.Empty;
-            string pintarA = string.Empty;
-            string pintarB = string.Empty;
+            var words = validateString(text);
+            var result = evaluateSearch(words);
 
-            string[] words = chain.Split(' ');
-
-            foreach (var word in words)
-            {
-                List<GenericEntity> listSearchEngine = new List<GenericEntity>();
-                listSearchEngine.Add(addList("Google", word));
-                listSearchEngine.Add(addList("Bing", word));
-
-                pintar = string.Format("{0}: ", word);
-
-                foreach (var item in listSearchEngine)
-                {
-                    searchEngine.SearchCall(item);
-                    pintar = pintar + string.Format("{0}: {1} ", item.name, item.resultado);
-                }
-
-                pintarA = pintarA + pintar;
-                pintarA = pintarA + "<br />";
-
-                pintar = string.Empty;
-
-                pintarB =   pintarB +  string.Format("{0}", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).name) + " winner: " +
-                                       string.Format("{0} ", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).q);
-                pintarB =   pintarB + "<br />";
-            }
-
-            pintar = pintarA + pintarB;
-
-            //pintar = pintar + string.Format("{0}", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).name) + " winner: " +
-            //                  string.Format("{0}", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).q);
-
-            return pintar;
+            return result;
         }
 
         /// <summary>
@@ -90,6 +56,77 @@ namespace WebAppSearchFight.Controllers
             genericEntity.q = word;
 
             return genericEntity;
+        }
+
+        /// <summary>
+        /// Método que valida el valor de la caja de texto
+        /// </summary>
+        /// <param name="text">texto</param>
+        /// <returns>retorno una lista con las palabras a buscar en el motoro de busqueda.</returns>
+        public List<string> validateString (string text)
+        {
+            List<string> result = new List<string>();
+
+            var lenght = text.Length;
+
+            var start = text.Substring(0, 1);
+            var end   = text.Substring(lenght-1, 1);
+
+            if(start == "\"" && end == "\"")
+            {
+                result.Add(text.Replace( "\""," "));
+            }
+            else
+            {
+                result = text.Split(new[] { " " },StringSplitOptions.RemoveEmptyEntries).ToList();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Método que evaluar el resultado de la busqueda
+        /// </summary>
+        /// <param name="words">words</param>
+        /// <returns>Devuelvo la cadena a mostrar</returns>
+        public string evaluateSearch(List<string> words)
+        {
+            SearchEngine searchEngine = new SearchEngine();
+            List<GenericEntity> FinalList = new List<GenericEntity>();
+
+            string finalSentence = string.Empty;
+            string sentenceA = string.Empty;
+            string sentenceB = string.Empty;
+
+            foreach (var word in words)
+            {
+                List<GenericEntity> listSearchEngine = new List<GenericEntity>();
+                listSearchEngine.Add(addList("Google", word));
+                listSearchEngine.Add(addList("Bing", word));
+
+                finalSentence = string.Format("{0}: ", word);
+
+                foreach (var item in listSearchEngine)
+                {
+                    searchEngine.SearchCall(item);
+                    finalSentence = finalSentence + string.Format("{0}: {1} ", item.name, item.resultado);
+
+                    FinalList.Add(new GenericEntity() { name = item.name, resultado = item.resultado, q = item.q });
+                }
+
+                sentenceA = sentenceA + finalSentence;
+                sentenceA = sentenceA + "<br />";
+
+                finalSentence = string.Empty;
+
+                sentenceB = sentenceB + string.Format("{0}", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).name) + " winner: " +
+                                       string.Format("{0} ", listSearchEngine.First(x => x.resultado == listSearchEngine.Max(y => y.resultado)).q);
+                sentenceB = sentenceB + "<br />";
+            }
+
+            finalSentence = sentenceA + sentenceB;
+
+            return finalSentence = finalSentence + string.Format("Total winner: " + "{0}", FinalList.First(x => x.resultado == FinalList.Max(y => y.resultado)).q);
         }
 
     }
